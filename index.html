@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Indian ID Card Generator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to bottom, #FF9933, white, #138808);
+      margin: 0;
+      padding: 10px;
+    }
+
+    .container {
+      background: white;
+      padding: 15px;
+      border-radius: 10px;
+      max-width: 100%;
+      box-shadow: 0 0 10px rgba(0,0,0,0.4);
+    }
+
+    h2 {
+      text-align: center;
+      color: #000080;
+    }
+
+    label {
+      font-weight: bold;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 8px;
+      margin: 8px 0;
+    }
+
+    button {
+      width: 100%;
+      padding: 10px;
+      background-color: #000080;
+      color: white;
+      border: none;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    button:hover {
+      background-color: #002060;
+    }
+
+    .id-card {
+      width: 86mm;
+      height: 54mm;
+      background: white;
+      position: relative;
+      margin: 20px auto;
+      border: 2px solid #000;
+      padding: 10px;
+      box-sizing: border-box;
+      font-size: 11px;
+      background-image: linear-gradient(to top right, #FF9933, white, #138808);
+    }
+
+    .flag {
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      width: 35px;
+    }
+
+    .ashoka {
+      position: absolute;
+      bottom: 8px;
+      right: 8px;
+      width: 40px;
+    }
+
+    .photo {
+      position: absolute;
+      top: 8px;
+      right: 10px;
+      width: 80px;
+      height: 100px;
+      object-fit: cover;
+      border: 1px solid black;
+      background: #eee;
+    }
+
+    .title {
+      text-align: center;
+      color: #000080;
+      font-weight: bold;
+    }
+
+    .details {
+      padding-top: 5px;
+      padding-right: 90px;
+    }
+
+    .footer {
+      text-align: center;
+      font-size: 13px;
+      margin-top: 20px;
+    }
+
+    .footer span {
+      font-weight: bold;
+      color: #000080;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Indian ID Card Generator</h2>
+
+    <label>Name:<input type="text" id="name"></label>
+    <label>Date of Birth:<input type="date" id="dob"></label>
+    <label>Gender:
+      <select id="gender">
+        <option>Male</option>
+        <option>Female</option>
+        <option>Other</option>
+      </select>
+    </label>
+    <label>Address:<input type="text" id="address"></label>
+    <label>Aadhar Number:<input type="text" maxlength="12" id="aadharNumber"></label>
+    <label>Upload Passport Size Photo:<input type="file" accept="image/*" id="photoInput"></label>
+
+    <button onclick="generateID()">Generate ID Card</button>
+    <button onclick="downloadID()" id="downloadBtn" style="display:none;">📥 Download ID Card</button>
+
+    <div id="generatedCard" class="id-card" style="display:none;">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/4/41/Flag_of_India.svg" class="flag" crossorigin="anonymous">
+      <div class="title">
+        Republic of India<br>
+        <span style="font-size: 10px;">PERMANENT RESIDENT</span>
+      </div>
+
+      <div class="details">
+        <p><strong>Name:</strong> <span id="cardName"></span></p>
+        <p><strong>DOB:</strong> <span id="cardDob"></span></p>
+        <p><strong>Sex:</strong> <span id="cardGender"></span></p>
+        <p><strong>ID Number:</strong> <span id="cardIdNumber"></span></p>
+        <p><strong>Address:</strong> <span id="cardAddress"></span></p>
+      </div>
+
+      <img id="photo" class="photo" src="">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1d/Emblem_of_India.svg/1200px-Emblem_of_India.svg.png" class="ashoka" crossorigin="anonymous">
+    </div>
+  </div>
+
+  <div class="footer">
+    Page created by <span>Samarjit Roy</span> | Email: <a href="mailto:rsamarjit041@gmail.com">rsamarjit041@gmail.com</a>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+
+  <script>
+    function generateID() {
+      const name = document.getElementById("name").value;
+      const dob = document.getElementById("dob").value;
+      const gender = document.getElementById("gender").value;
+      const address = document.getElementById("address").value;
+      const aadhar = document.getElementById("aadharNumber").value;
+
+      if (aadhar.length !== 12 || isNaN(aadhar)) {
+        alert("Enter a valid 12-digit Aadhar number.");
+        return;
+      }
+
+      document.getElementById("cardName").textContent = name;
+      document.getElementById("cardDob").textContent = dob;
+      document.getElementById("cardGender").textContent = gender;
+      document.getElementById("cardAddress").textContent = address;
+      document.getElementById("cardIdNumber").textContent = aadhar.slice(-8); // last 8 digits
+
+      const file = document.getElementById("photoInput").files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          document.getElementById("photo").src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+
+      document.getElementById("generatedCard").style.display = "block";
+      document.getElementById("downloadBtn").style.display = "block";
+    }
+
+    function downloadID() {
+      const idCard = document.getElementById("generatedCard");
+      html2canvas(idCard, {useCORS: true}).then(canvas => {
+        const link = document.createElement('a');
+        link.download = 'Indian_ID_Card.png';
+        link.href = canvas.toDataURL();
+        link.click();
+      });
+    }
+  </script>
+</body>
+</html>
